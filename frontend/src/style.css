@@ -1,8 +1,16 @@
 body {
   font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background: #f8fafc;
 }
 
-.body-container{
-    margin-left: 15%;
-    margin-right: 15%;
+.body-container {
+  width: min(1440px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .body-container {
+    width: min(100% - 24px, 1440px);
+  }
 }

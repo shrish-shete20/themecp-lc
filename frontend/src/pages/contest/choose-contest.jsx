@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import "./choose-contest.css"
 import { getRatings } from "./utility";
 
@@ -6,16 +6,7 @@ export function ChooseContest({ setIsSubmitted, setSelectedLevel, leetcodeProfil
   let current_level = 23; // default
   const [level, setLevel] = useState(current_level);
 
-  const [problems, setProblems] = useState([
-    "problem 1",
-    "problem 2",
-    "problem 3",
-    "problem 4",
-  ]);
-
-  useEffect(() => {
-    setProblems(getRatings(level));
-  }, [level]);
+  const problems = getRatings(level);
 
   return (
     <div className="choose-contest-outer">
@@ -40,7 +31,8 @@ export function ChooseContest({ setIsSubmitted, setSelectedLevel, leetcodeProfil
         <div className="center-container">
           <div className="note">
             If suggested level is too easy/hard, you can choose an appropriate level from
-            <a href="/level-sheet"> level sheet</a>
+            <a href="/level-sheet"> level sheet</a>. Problem ratings shown here come
+            from the external ratings dataset, not LeetCode's Easy/Medium/Hard labels.
           </div>
 
           <div className="theme-box">Theme : mixed</div>

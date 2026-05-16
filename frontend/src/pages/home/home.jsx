@@ -14,7 +14,7 @@ export default function Home() {
         <h1>About {" "} <ThemeCP_Leetcode/></h1>
 
         <p>
-          {" "} <ThemeCP_Leetcode/> is heavily inspired by{" "}
+          {" "} <ThemeCP_Leetcode/> borrows the idea of rating-guided practice from{" "}
           <a
             href="https://themecp.vercel.app"
             target="_blank"
@@ -22,14 +22,13 @@ export default function Home() {
           >
             ThemeCP for Codeforces
           </a>
-          . The design is intentionally similar to make the shift from
-          Codeforces-style practice to LeetCode practice feel smooth and
-          familiar.
+          , then adapts it into its own LeetCode-focused experience.
         </p>
 
         <p>
-          The main focus of this project is not heavy UI redesign, but building
-          a structured practice system for LeetCode users.
+          The goal is a polished, free practice cockpit: clear stats, balanced
+          120-minute sets, and an honest split between LeetCode's official labels
+          and external numeric problem ratings.
         </p>
       </section>
 

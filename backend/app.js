@@ -11,7 +11,8 @@ const app = express();
 const defaultOrigins = [
   "http://localhost:3001",
   "http://localhost:3000",
-  "https://themecp-leetcode.vercel.app"
+  "https://themecp-leetcode.vercel.app",
+  "https://themecp-lc-frontend.vercel.app"
 ];
 
 const configuredOrigins = process.env.CORS_ORIGINS

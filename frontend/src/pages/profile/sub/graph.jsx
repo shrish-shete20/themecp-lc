@@ -11,7 +11,6 @@ import {
 
 export default function RatingChart({ contestHistory }) {
   const sameDateCount = {};
-  console.log("->contest history", contestHistory)
 
   const data = (contestHistory || []).map((el) => {
     const originalTime = new Date(el.start_time).getTime();
@@ -29,22 +28,37 @@ export default function RatingChart({ contestHistory }) {
     };
   });
 
+  if (data.length === 0) {
+    return (
+      <div className="chart-empty">
+        Complete a ThemeCP-LeetCode practice contest to start your rating graph.
+      </div>
+    );
+  }
+
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
+    <ResponsiveContainer width="100%" height={320}>
+      <LineChart data={data} margin={{ top: 18, right: 18, left: 0, bottom: 10 }}>
+        <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
 
         <XAxis
           dataKey="time"
           type="number"
           domain={["dataMin", "dataMax"]}
           scale="time"
-          tick={false}
+          tickFormatter={(value) => new Date(value).toLocaleDateString("en-GB", { month: "short", day: "numeric" })}
+          tick={{ fill: "#667085", fontSize: 12 }}
+          tickLine={false}
         />
 
-        <YAxis />
+        <YAxis tick={{ fill: "#667085", fontSize: 12 }} tickLine={false} axisLine={false} />
 
         <Tooltip
+          contentStyle={{
+            borderRadius: 14,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 16px 32px rgba(15, 23, 42, 0.12)",
+          }}
           labelFormatter={(_, payload) => {
             const originalTime = payload?.[0]?.payload?.originalTime;
             return originalTime
@@ -56,9 +70,10 @@ export default function RatingChart({ contestHistory }) {
         <Line
           type="monotone"
           dataKey="rating"
-          stroke="#ef0000"
+          stroke="#f59e0b"
           strokeWidth={3}
-          dot={{ r: 4 }}
+          dot={{ r: 4, fill: "#f59e0b", strokeWidth: 2, stroke: "#ffffff" }}
+          activeDot={{ r: 7, fill: "#f97316", stroke: "#ffffff", strokeWidth: 2 }}
         />
       </LineChart>
     </ResponsiveContainer>

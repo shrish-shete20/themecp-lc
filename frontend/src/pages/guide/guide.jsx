@@ -52,7 +52,9 @@ export default function Guide() {
 
                 <p>
                     The level system helps you practice problems near your current skill
-                    level instead of randomly solving problems.
+                    level instead of randomly solving problems. LeetCode's official
+                    difficulty labels are Easy, Medium, and Hard; this app's level
+                    targets come from the external ZeroTrac-style ratings dataset.
                 </p>
 
                 <p>

@@ -65,6 +65,40 @@ async function getThemeDetail(email){
     }
 }
 
+async function getLeetcodeStats(username) {
+    if (!username) return null;
+
+    try {
+        const result = await axios.get(
+            `${import.meta.env.VITE_API_URL}/leetcode/profile-stats`,
+            {
+                params: { username }
+            }
+        );
+
+        return result.data;
+    } catch (err) {
+        console.log("some error getting the LeetCode profile stats");
+        console.log(err);
+    }
+}
+
+async function getPracticeStats(email) {
+    try {
+        const result = await axios.get(
+            `${import.meta.env.VITE_API_URL}/problems/user_stats`,
+            {
+                params: { email }
+            }
+        );
+
+        return result.data;
+    } catch (err) {
+        console.log("some error getting the practice stats");
+        console.log(err);
+    }
+}
+
 function getRatings(level) {
     if (level == null || isNaN(level)) {
         return [1000, 1200, 1400, 1600];
@@ -85,22 +119,12 @@ function getRatings(level) {
 }
 
 
-// async function main(){
-//     const a = await saveProfileName("nvnukumarutkarsh", "nvnushaul@gmail.com");
-//     if(a){
-//         console.log("able to save the profile")
-//     }
-//     else{
-//         console.log("unable to save the profile")
-//     }
-// }
-
-// main();
-
 export {
     saveProfileName,
     getUserData,
     getContestHistory,
     getRatings,
-    getThemeDetail
+    getThemeDetail,
+    getLeetcodeStats,
+    getPracticeStats
 };

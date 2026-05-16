@@ -1,56 +1,39 @@
-/* Navbar container */
 .navbar-profile {
   display: flex;
-  justify-content: space-between; /* better layout */
+  justify-content: space-between;
   align-items: center;
-  background-color: #f8f8f8;
-  border-bottom: 1px solid #ccc;
-  padding: 0 30px;
-  height: 60px;
+  margin: 18px 0 0;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.82);
+  padding: 8px 14px;
+  min-height: 52px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
 }
 
-/* Nav list */
 .navbar-profile .nav-list {
   list-style: none;
   display: flex;
-  gap: 25px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   align-items: center;
 }
 
-/* Links */
 .navbar-profile .nav-list a {
   text-decoration: none;
-  color: black;
-  font-weight: 500;
-  padding: 8px 0;
-  position: relative;
-  transition: color 0.2s ease;
+  color: #475467;
+  font-weight: 800;
+  padding: 10px 16px;
+  border-radius: 999px;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-/* Hover effect */
 .navbar-profile .nav-list a:hover {
-  color: #1a73e8;
+  background-color: #fff7ed;
+  color: #9a3412;
 }
 
-/* Underline animation */
-.navbar-profile .nav-list a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 0%;
-  height: 2px;
-  background-color: #1a73e8;
-  transition: width 0.3s ease;
-}
-
-.navbar-profile .nav-list a:hover::after {
-  width: 100%;
-}
-
-/* Button styling */
 .navbar-profile button {
   padding: 8px 16px;
   border: none;
@@ -62,7 +45,16 @@
   transition: background-color 0.2s ease;
 }
 
-/* Button hover */
 .navbar-profile button:hover {
   background-color: #1558b0;
+}
+
+@media (max-width: 640px) {
+  .navbar-profile {
+    border-radius: 20px;
+  }
+
+  .navbar-profile .nav-list {
+    flex-wrap: wrap;
+  }
 }

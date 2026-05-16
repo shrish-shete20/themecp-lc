@@ -1,10 +1,213 @@
-.login-container {
-    width: 100%;
-    height: 100vh;   /* important */
-    display: flex;
-    justify-content: center;  /* horizontal */
-    align-items: center;      /* vertical */
-    background-color: aliceblue;
-    flex-direction: column;
+.login-page {
+  min-height: calc(100vh - 84px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+  gap: 32px;
+  align-items: stretch;
+  padding: 52px 0;
+  color: #172033;
+}
 
+.login-hero,
+.auth-card {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 32px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+}
+
+.login-hero {
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  padding: 42px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(245, 158, 11, 0.4), transparent 26%),
+    radial-gradient(circle at 85% 30%, rgba(251, 191, 36, 0.24), transparent 28%),
+    linear-gradient(140deg, #111827, #1f2937 48%, #3b250f);
+  color: #ffffff;
+  position: relative;
+}
+
+.login-hero::before {
+  content: "";
+  position: absolute;
+  inset: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 26px;
+  pointer-events: none;
+}
+
+.login-badge,
+.auth-eyebrow {
+  width: fit-content;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.login-hero h1 {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(38px, 6vw, 72px);
+  line-height: 0.96;
+  letter-spacing: -0.07em;
+}
+
+.login-hero p {
+  max-width: 620px;
+  margin: 22px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.login-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.login-highlights span {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+}
+
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(28px, 5vw, 46px);
+  background: #ffffff;
+}
+
+.auth-card-heading h2,
+.signed-in-state h2 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.05em;
+}
+
+.auth-card-heading p,
+.signed-in-state p {
+  color: #667085;
+  line-height: 1.7;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 28px 0 22px;
+  border-radius: 16px;
+  background: #f2f4f7;
+  padding: 6px;
+}
+
+.auth-tabs button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  background: transparent;
+  color: #667085;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.auth-tabs button.active {
+  background: #ffffff;
+  color: #172033;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 8px;
+  color: #344054;
+  font-weight: 800;
+}
+
+.auth-form input {
+  border: 1px solid #d0d5dd;
+  border-radius: 16px;
+  padding: 14px 15px;
+  color: #172033;
+  font: inherit;
+  outline: none;
+}
+
+.auth-form input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.14);
+}
+
+.auth-message {
+  margin: 0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 14px;
+}
+
+.primary-auth-button,
+.signed-in-state button {
+  min-height: 50px;
+  border: none;
+  border-radius: 16px;
+  background: #f59e0b;
+  color: #172033;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.primary-auth-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.signed-in-state {
+  display: grid;
+  gap: 14px;
+}
+
+@media (max-width: 980px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .login-hero {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-page {
+    padding: 28px 0;
+  }
+
+  .login-hero,
+  .auth-card {
+    border-radius: 24px;
+    padding: 26px;
+  }
 }
