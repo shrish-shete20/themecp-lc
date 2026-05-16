@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./created-contest.css";
 import { getRatings, getQuestions, registerContest } from "./utility";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth } from "../../auth.jsx";
 
 export function CreatedContest({
     level,
@@ -10,7 +10,7 @@ export function CreatedContest({
     copyQuestions,
     copyRatings,
 }) {
-    const { user } = useAuth0();
+    const { user } = useAuth();
 
     const ratings = getRatings(level);
     const [questions, setQuestions] = useState(null);

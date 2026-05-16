@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getSubmissionStatus, updateSubmission } from "./utility";
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "../../auth.jsx"
 
 import "./running-contest.css"
 
@@ -46,7 +46,7 @@ export function Running({
   console.log(questions)
   console.log(contestId);
   const [submissionStatus, setSubmissionStatus] = useState([false, false, false, false]);
-  const { user } = useAuth0();
+  const { user } = useAuth();
   console.log(questions)
 
   return (

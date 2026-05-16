@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "./contest_history.css"
-import { useAuth0 } from "@auth0/auth0-react"
-import { getContestHistory, getRatings } from "./utils"
+import { useAuth } from "../../../auth.jsx"
+import { getRatings } from "./utils"
 import {updateSubmission} from "../../contest/utility"
 
 // rating → css class mapping
@@ -109,7 +109,7 @@ function TableHeading() {
 }
 
 export default function ContestHistory({ leetcodeProfileName, contestHistory }) {
-  const { user } = useAuth0();
+  const { user } = useAuth();
 
   useEffect(() => {
     console.log("*****contest history ",contestHistory)

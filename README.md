@@ -24,4 +24,4 @@ npm run seed:problems -- ../frontend/data/ratings.txt
 
 Set frontend environment variables from `frontend/.env.example`, then deploy with Vercel using `frontend` as the project root.
 
-Auth0 callback, logout, and web origins should include the final frontend URL.
+Supabase Auth should allow the final frontend URL in its Site URL and redirect URLs.

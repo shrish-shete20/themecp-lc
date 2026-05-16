@@ -1,10 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../auth.jsx";
 
 import "./navbar.css";
 
 export default function Navbar() {
-  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+  const { isAuthenticated, logout, loginWithRedirect } = useAuth();
 
   const login_logout = isAuthenticated ? "Logout" : "Login";
 

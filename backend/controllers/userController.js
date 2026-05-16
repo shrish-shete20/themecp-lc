@@ -4,11 +4,19 @@ const {doesProfileExist} = require("./utils");
 async function addUser(req, res) {
     const db = getDB();
     const connection = await db.getConnection();
-    const { name, email } = req.body;
+    const suppliedEmail = req.body?.email;
+    const name = req.authUser?.name || req.body?.name;
+    const email = req.authUser?.email || suppliedEmail;
 
     if (!name || !email) {
         return res.status(400).json({
             message: "name and email are required"
+        });
+    }
+
+    if (req.authUser?.email && suppliedEmail && suppliedEmail !== req.authUser.email) {
+        return res.status(403).json({
+            message: "Authenticated user does not match requested email"
         });
     }
 
@@ -63,12 +71,19 @@ async function addUser(req, res) {
 }
 
 async function getProfileName(req, res) {
-    const email = req.query.email;
+    const suppliedEmail = req.query.email;
+    const email = req.authUser?.email || suppliedEmail;
     const db = getDB();
 
     if (!email) {
         return res.status(400).json({
             message: "Email is required",
+        });
+    }
+
+    if (req.authUser?.email && suppliedEmail && suppliedEmail !== req.authUser.email) {
+        return res.status(403).json({
+            message: "Authenticated user does not match requested email"
         });
     }
 
@@ -101,12 +116,21 @@ async function getProfileName(req, res) {
 
 async function saveProfileName(req, res) {
     console.log("inside  save user profile")
-    const { email, user_profile_name } = req.body;
+    const { user_profile_name } = req.body;
+    const suppliedEmail = req.body?.email;
+    const email = req.authUser?.email || suppliedEmail;
     const db = getDB();
 
     if (!email || !user_profile_name) {
         return res.status(400).json({
             message: "Email and profile name are required",
+            state: "not_able_to_save"
+        });
+    }
+
+    if (req.authUser?.email && suppliedEmail && suppliedEmail !== req.authUser.email) {
+        return res.status(403).json({
+            message: "Authenticated user does not match requested email",
             state: "not_able_to_save"
         });
     }

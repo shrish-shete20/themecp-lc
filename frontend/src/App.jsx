@@ -1,5 +1,5 @@
-import { Route, Routes, Link } from "react-router-dom"
-import { useAuth0 } from "@auth0/auth0-react"
+import { Route, Routes } from "react-router-dom"
+import { useAuth } from "./auth.jsx"
 import { useEffect, useState } from "react"
 
 import Navbar from "./pages/navbar/navbar"
@@ -25,7 +25,7 @@ export default function App() {
   // ways first from the login page and second from the login button
   // so here in the main page we are checking if the isAuth get
   // true then make the entry
-  const { user, loginWithRedirect, logout, isAuthenticated } = useAuth0();
+  const { user, isAuthenticated } = useAuth();
   useEffect(() => {
     const run = async () => {
       if (isAuthenticated && user) {

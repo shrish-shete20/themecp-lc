@@ -4,12 +4,19 @@ async function getUserIdFromEmail(req, res, next) {
     console.log("inside getUserIdFromEmail")
     const db = getDB();
     // to handle both get and put routes
-    const email = req.body?.email || req.query?.email;
+    const suppliedEmail = req.body?.email || req.query?.email;
+    const email = req.authUser?.email || suppliedEmail;
     console.log("inside getUserIdFromEmail", email)
 
     if (!email) {
         return res.status(400).json({
             message: "Email is required",
+        });
+    }
+
+    if (req.authUser?.email && suppliedEmail && suppliedEmail !== req.authUser.email) {
+        return res.status(403).json({
+            message: "Authenticated user does not match requested email",
         });
     }
 
@@ -26,6 +33,7 @@ async function getUserIdFromEmail(req, res, next) {
         }
 
         req.userId = rows[0].id; // store for next handler
+        req.userEmail = email;
         console.log("user id found successfully", rows[0].id)
         next();
     } catch (err) {
@@ -214,6 +222,7 @@ async function insertSolvedProblems(req, res) {
 async function getContest(req, res) {
     console.log("***** inside getContest");
     const contestId = req.query.contestId;
+    const userId = req.userId;
     const db = getDB();
     console.log(contestId);
 
@@ -228,10 +237,10 @@ async function getContest(req, res) {
         const sql = `
             SELECT *
             FROM contests
-            WHERE id = ?
+            WHERE id = ? AND user_id = ?
         `;
 
-        const [result] = await db.query(sql, [contestId]);
+        const [result] = await db.query(sql, [contestId, userId]);
 
         if (result.length === 0) {
             return res.status(404).json({

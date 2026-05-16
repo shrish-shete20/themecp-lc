@@ -7,8 +7,9 @@ const {
 } = require("../controllers/problemController");
 
 const {getUserIdFromEmail} = require("../controllers/contestController")
+const { requireSupabaseAuth } = require("../middleware/supabaseAuth");
 
-router.get("/get_problem", getUserIdFromEmail, getProblem);
+router.get("/get_problem", requireSupabaseAuth, getUserIdFromEmail, getProblem);
 router.get("/get_question_from_problem_id", getQuestionFromProblemId);
 router.get("/get_rating_from_problem_id", getRatingFromProblemId);
 

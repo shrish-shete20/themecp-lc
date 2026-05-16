@@ -1,8 +1,7 @@
 import "./profile_info.css"
-import { getUserData, saveProfileName, getThemeDetail } from "./utils"
+import { saveProfileName, getThemeDetail } from "./utils"
 import { useEffect, useState } from "react";
-import { useAuth0 } from "@auth0/auth0-react"
-import ProfileNavbar from "./navbar"
+import { useAuth } from "../../../auth.jsx"
 import RatingChart from "./graph.jsx"
 
 
@@ -23,7 +22,7 @@ import RatingChart from "./graph.jsx"
 
 export default function ProfileInfo({ leetcodeProfileName, setProfile, contestHistory }) {
 
-    const { user, loginWithRedirect, logout, isAuthenticated } = useAuth0();
+    const { user, loginWithRedirect, isAuthenticated } = useAuth();
     const [themeDetail, setThemeDetail] = useState(null);
 
     useEffect(() => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { ChooseContest } from "./choose-contest"
 import { CreatedContest } from "./created-contest"
 import { Running } from "./running-contest"
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "../../auth.jsx"
 import { getSecondsAgo, isContestRunning, getQuestionFromProblemId, getRatingFromProblemId } from "./utility";
 
 export default function Contest({ leetcodeProfileName }) {
@@ -16,7 +16,7 @@ export default function Contest({ leetcodeProfileName }) {
   const [contestId, setContestId] = useState(-1);
 
   const [running, setRunning] = useState(false);
-  const { user } = useAuth0();
+  const { user } = useAuth();
 
   useEffect(() => {
 
