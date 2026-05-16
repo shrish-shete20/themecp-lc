@@ -26,10 +26,10 @@ async function addUser(req, res) {
             userId = existingUsers[0].id;
         } else {
             const [userResult] = await connection.query(
-                "INSERT INTO users (username, email) VALUES (?, ?)",
+                "INSERT INTO users (username, email) VALUES (?, ?) RETURNING id",
                 [name, email]
             );
-            userId = userResult.insertId;
+            userId = userResult[0].id;
         }
 
         const [existingProfile] = await connection.query(

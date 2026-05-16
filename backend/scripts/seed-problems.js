@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const fs = require("fs");
 const path = require("path");
-const mysql = require("mysql2/promise");
+const { Pool } = require("pg");
 
 const inputPath = process.argv[2]
   ? path.resolve(process.argv[2])
@@ -36,27 +36,31 @@ async function main() {
     return;
   }
 
-  const db = await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: Number(process.env.DB_PORT || 3306),
-    multipleStatements: true,
+  const db = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false },
   });
 
   const chunkSize = 500;
   for (let i = 0; i < rows.length; i += chunkSize) {
     const chunk = rows.slice(i, i + chunkSize);
+    const values = chunk.flat();
+    const placeholders = chunk
+      .map((_, index) => {
+        const offset = index * 3;
+        return `($${offset + 1}, $${offset + 2}, $${offset + 3})`;
+      })
+      .join(", ");
+
     await db.query(
       `
         INSERT INTO problems (id, url_title, rating)
-        VALUES ?
-        ON DUPLICATE KEY UPDATE
-          url_title = VALUES(url_title),
-          rating = VALUES(rating)
+        VALUES ${placeholders}
+        ON CONFLICT (id) DO UPDATE SET
+          url_title = EXCLUDED.url_title,
+          rating = EXCLUDED.rating
       `,
-      [chunk]
+      values
     );
   }
 

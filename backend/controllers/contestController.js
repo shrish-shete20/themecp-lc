@@ -55,21 +55,19 @@ async function getProblemIds(req, res, next) {
     }
 
     try {
-        const placeholders = problems.map(() => "?").join(",");
-
         const sql = `
             SELECT id, url_title
             FROM problems
-            WHERE url_title IN (${placeholders})
+            WHERE url_title = ANY(?::text[])
         `;
 
-        const [rows] = await db.query(sql, problems);
+        const [rows] = await db.query(sql, [problems]);
 
         if (rows.length === 0) {
 
             return res.status(200).json({
                 message: "No accepted problems are from the problems table",
-                missingProblems,
+                missingProblems: problems,
             });
         }
 
@@ -94,6 +92,7 @@ async function addContest(req, res) {
             INSERT INTO contests
             (user_id, selected_level, problem_id1, problem_id2, problem_id3, problem_id4)
             VALUES (?, ?, ?, ?, ?, ?)
+            RETURNING id
         `;
 
         const [contestResult] = await db.query(sql1, [
@@ -112,7 +111,7 @@ async function addContest(req, res) {
         }
         return res.status(200).json({
             message: "all right, contest added",
-            contest_id: contestResult.insertId
+            contest_id: contestResult[0].id
         });
     } catch (err) {
         console.log("something bad happened from the db side", err);
@@ -177,26 +176,25 @@ async function insertSolvedProblems(req, res) {
     }
 
     try {
-        const values = problemIds.map(problem => [
-            userId,
-            problem,
-            "solved"
-        ]);
+        const placeholders = problemIds
+            .map((_, index) => `(? , ? , ?)`)
+            .join(",");
+        const values = problemIds.flatMap(problem => [userId, problem, "solved"]);
 
         const sql = `
-            REPLACE INTO user_problems (
+            INSERT INTO user_problems (
                 user_id,
                 problem_id,
                 status
             )
-            VALUES ?;
-        `
-        // const sql = `
-        //     INSERT IGNORE INTO user_problems (user_id, problem_id, status)
-        //     VALUES ?
-        // `;
+            VALUES ${placeholders}
+            ON CONFLICT (user_id, problem_id)
+            DO UPDATE SET
+                status = EXCLUDED.status,
+                updated_at = CURRENT_TIMESTAMP
+        `;
 
-        const [result] = await db.query(sql, [values]);
+        const [, result] = await db.query(sql, values);
 
         return res.status(200).json({
             message: "Submission update completed",

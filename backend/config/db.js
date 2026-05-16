@@ -1,28 +1,72 @@
-const mysql = require("mysql2/promise");
+const { Pool } = require("pg");
 
 let pool;
 
 async function connectDB() {
-    console.log("DB_HOST:", process.env.DB_HOST);
-    console.log("DB_PORT:", process.env.DB_PORT);
-    console.log("DB_USER:", process.env.DB_USER);
-    console.log("DB_NAME:", process.env.DB_NAME);
-    pool = await mysql.createPool({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        port: Number(process.env.DB_PORT)   // important for cloud
+    if (pool) return pool;
+
+    if (!process.env.DATABASE_URL) {
+        throw new Error("DATABASE_URL is required");
+    }
+
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false },
     });
 
-    console.log("mysql connected");
+    await pool.query("SELECT 1");
+    console.log("postgres connected");
+    return pool;
+}
+
+function convertPlaceholders(sql) {
+    let index = 0;
+    return sql.replace(/\?/g, () => `$${++index}`);
 }
 
 function getDB() {
     if (!pool) {
         throw new Error("Database not connected yet");
     }
-    return pool;
+    return {
+        async query(sql, params = []) {
+            const result = await pool.query(convertPlaceholders(sql), params);
+            return [
+                result.rows,
+                {
+                    affectedRows: result.rowCount,
+                    insertId: result.rows[0]?.id,
+                },
+            ];
+        },
+        async getConnection() {
+            const client = await pool.connect();
+            return {
+                async beginTransaction() {
+                    await client.query("BEGIN");
+                },
+                async commit() {
+                    await client.query("COMMIT");
+                },
+                async rollback() {
+                    await client.query("ROLLBACK");
+                },
+                release() {
+                    client.release();
+                },
+                async query(sql, params = []) {
+                    const result = await client.query(convertPlaceholders(sql), params);
+                    return [
+                        result.rows,
+                        {
+                            affectedRows: result.rowCount,
+                            insertId: result.rows[0]?.id,
+                        },
+                    ];
+                },
+            };
+        },
+    };
 }
 
 module.exports = { connectDB, getDB };
