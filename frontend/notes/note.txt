@@ -1,0 +1,42 @@
+# data required
+
+// skip this for now
+1. problem solved, problem number 
+2. {
+    userName,
+    maxRating,
+    profilePic
+}
+
+roadmap
+1. deploy a static, portfolio type website => done
+2. get domain name => can get subdomain for gree
+3. deploy a web app with react code
+4. deplay a web app with some sql data base, like a todo list app
+5. understand authentication and browser cookie.
+
+7. there can be cases where for the selected level 
+theme is not able to find any question from the db
+
+done 8. change the whole ui with login logout
+
+9. make the whole logic for adding the profile and how to connect with the data base
+
+10. explore createBrowserRouter.
+
+11. whenever the react component get rerendered, useState preserve its data but when the whole page
+get refreshed every useState loose its info, to optimize it
+later we can store that info in localStorage
+
+12. authentication login-logout logic has got bit messy, resolve it
+
+13. make the contest history (for now leave the profile add logic, this will be the last thing i will do)
+    => contest history data base and how it will connect with other tables
+    => retrieving the data from the table and showing in the contest history
+    => rating increase logic
+    => showing the histogram
+
+14. understand react side effect: https://www.youtube.com/watch?v=Y-JtH75uXYw
+
+15. logic for the already running contest has become bit messy
+    make a proper road map of it

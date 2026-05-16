@@ -1,0 +1,28 @@
+.running-contest-outer{
+  padding: 48px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f8f8f8;
+}
+
+.running-container .table-container{
+  padding-top: 60px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* IMPORTANT */
+}
+
+.running-container th {
+  background-color: #f2a0a0;
+  font-weight: bold;
+}
+
+.running-container th, td {
+  border: 2px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}

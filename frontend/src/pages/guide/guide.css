@@ -1,0 +1,74 @@
+.guide {
+  min-height: 100vh;
+  padding: 48px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  background-color: #f8f8f8;
+}
+
+.guide-card {
+  width: 100%;
+  max-width: 850px;
+  background: #ffffff;
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+  padding: 28px 32px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.guide-card h1 {
+  margin: 0 0 18px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+}
+
+.guide-card p {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #444;
+}
+
+.guide-card a {
+  color: #444;
+  /* font-weight: 600; */
+  text-decoration: underline;
+}
+
+.guide-card a:hover {
+  text-decoration: underline;
+}
+
+.theme-highlight-cp {
+  color: rgb(235, 192, 5);
+}
+
+.theme-highlight-leetcode {
+  color: rgb(118, 115, 114);
+}
+
+.guide-card strong {
+  color: #222;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .guide {
+    padding: 28px 14px;
+  }
+
+  .guide-card {
+    padding: 22px 20px;
+  }
+
+  .guide-card h1 {
+    font-size: 24px;
+  }
+
+  .guide-card p {
+    font-size: 15px;
+  }
+}

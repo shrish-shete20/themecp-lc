@@ -1,0 +1,68 @@
+/* Navbar container */
+.navbar-profile {
+  display: flex;
+  justify-content: space-between; /* better layout */
+  align-items: center;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ccc;
+  padding: 0 30px;
+  height: 60px;
+}
+
+/* Nav list */
+.navbar-profile .nav-list {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+/* Links */
+.navbar-profile .nav-list a {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+  padding: 8px 0;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+/* Hover effect */
+.navbar-profile .nav-list a:hover {
+  color: #1a73e8;
+}
+
+/* Underline animation */
+.navbar-profile .nav-list a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background-color: #1a73e8;
+  transition: width 0.3s ease;
+}
+
+.navbar-profile .nav-list a:hover::after {
+  width: 100%;
+}
+
+/* Button styling */
+.navbar-profile button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #1a73e8;
+  color: white;
+  font-weight: 500;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Button hover */
+.navbar-profile button:hover {
+  background-color: #1558b0;
+}

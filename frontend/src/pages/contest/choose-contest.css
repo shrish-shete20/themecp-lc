@@ -1,0 +1,78 @@
+* {
+    box-sizing: border-box;
+}
+
+.choose-contest-outer{
+    padding: 48px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  background-color: #f8f8f8;
+}
+
+.choose-contest {
+    margin-top: 0%;
+    background: #ffffff;
+    padding: 30px;
+    border: 1px solid #b0adad;
+  border-radius: 14px;
+}
+
+.choose-contest .center-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.choose-contest .suggested-level {
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+.choose-contest .note {
+    color: red;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.choose-contest .note a {
+    color: #4a5ad0;
+    text-decoration: none;
+}
+
+.choose-contest .theme-box {
+    padding: 10px 20px;
+    background-color: #e0e0e0;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid black;
+    width: 40%;
+}
+
+/* profile */
+.choose-contest .problems-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  margin-top: 5%;
+  text-align: center;
+}
+
+.choose-contest .problem-cell {
+  border: 1px solid black;
+  border-radius: 5px;
+  width: 20%;
+}
+
+.choose-contest .duration{
+    margin-top: 5%;
+}
+
+.choose-contest .create-btn{
+    margin-top: 5%;
+}

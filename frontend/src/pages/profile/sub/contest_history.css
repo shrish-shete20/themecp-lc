@@ -1,0 +1,77 @@
+.contest-history .table-row {
+  display: flex;
+  width: 100%;
+}
+
+.contest-history .table-row-cell {
+  flex: 1;
+  background-color: #ccc;
+  border: 1px solid black;
+  border-radius: 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* font-size: clamp(10px, 1vw, 16px); */
+}
+
+
+.contest-history .cell-1000-to-1299 {
+  background-color: grey;
+}
+
+.contest-history .cell-1300-to-1599 {
+  background-color: rgb(89, 211, 89);
+}
+
+.contest-history .cell-1600-to-1899 {
+  background-color: rgb(9, 184, 163);
+}
+
+.contest-history .cell-1900-to-2199 {
+  background-color: rgb(101, 112, 237);
+
+}
+
+.contest-history .cell-2200-to-2499 {
+  background-color: rgb(219, 114, 238);
+
+}
+
+.contest-history .cell-2500-to-2799 {
+  background-color: rgb(231, 143, 85);
+
+}
+
+.contest-history .cell-2800-to-3099 {
+  background-color: rgb(234, 66, 66);
+
+}
+
+.contest-history .cell-3100-to-3399 {
+  background-color: rgb(186, 22, 22);
+
+}
+
+.contest-history .cell-3400-to-3699 {
+  background-color: rgb(245, 250, 245);
+
+}
+
+.contest-history .solved-during{
+  background-color: #6de980;
+
+}
+.contest-history .solved-after{
+  background-color: #f6ae42;
+  
+}
+.contest-history .not-solved{
+  background-color: rgb(248, 186, 186);
+  
+}
+
+.date-cell{
+  font-size: small;
+}
