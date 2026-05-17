@@ -1,4 +1,58 @@
 const { getDB } = require("../config/db");
+const { syncAcceptedLeetcodeProblems } = require("./leetcodeService");
+
+function parseRatingsParam(ratingsParam) {
+    const ratings = Array.isArray(ratingsParam)
+        ? ratingsParam
+        : String(ratingsParam || "").split(",");
+
+    return ratings
+        .map((rating) => Number(rating))
+        .filter((rating) => Number.isFinite(rating));
+}
+
+async function getSavedLeetcodeProfileName(db, userId) {
+    const [rows] = await db.query(
+        `
+            SELECT leetcode_profile_name
+            FROM users
+            WHERE id = ?
+        `,
+        [userId]
+    );
+
+    return rows[0]?.leetcode_profile_name || null;
+}
+
+async function selectProblemForRating(db, userId, rating, excludedProblemIds = []) {
+    const excludedProblemClause = excludedProblemIds.length > 0
+        ? "AND p.id <> ALL(?::int[])"
+        : "";
+    const params = [rating, rating + 100, userId];
+
+    if (excludedProblemIds.length > 0) {
+        params.push(excludedProblemIds);
+    }
+
+    const sql = `
+        SELECT p.url_title, p.id
+        FROM problems p
+        WHERE p.rating >= ? AND p.rating < ?
+          AND NOT EXISTS (
+              SELECT 1
+              FROM user_problems up
+              WHERE up.problem_id = p.id
+                AND up.user_id = ?
+                AND up.status = 'solved'
+          )
+          ${excludedProblemClause}
+        ORDER BY p.rating ASC
+        LIMIT 1;
+    `;
+
+    const [rows] = await db.query(sql, params);
+    return rows[0] || null;
+}
 
 async function getProblem(req, res) {
     const db = getDB();
@@ -27,6 +81,66 @@ async function getProblem(req, res) {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Database query failed" });
+    }
+}
+
+async function getContestProblems(req, res) {
+    const db = getDB();
+    const userId = req.userId;
+    const ratings = parseRatingsParam(req.query.ratings);
+
+    if (ratings.length !== 4) {
+        return res.status(400).json({
+            message: "Exactly four ratings are required"
+        });
+    }
+
+    try {
+        const requestedProfileName = req.query.leetcodeProfileName || req.query.leetcodeUsername;
+        const leetcodeProfileName = requestedProfileName || await getSavedLeetcodeProfileName(db, userId);
+
+        if (!leetcodeProfileName) {
+            return res.status(400).json({
+                message: "LeetCode profile name is required before creating a contest"
+            });
+        }
+
+        const leetcodeSync = await syncAcceptedLeetcodeProblems(db, userId, leetcodeProfileName);
+
+        if (leetcodeSync.profileFound === false) {
+            return res.status(400).json({
+                message: "Saved LeetCode profile was not found"
+            });
+        }
+
+        const selectedProblems = [];
+        const selectedProblemIds = [];
+
+        for (const rating of ratings) {
+            const problem = await selectProblemForRating(db, userId, rating, selectedProblemIds);
+
+            if (!problem) {
+                return res.status(409).json({
+                    message: `No unsolved problem found for rating ${rating}`,
+                    selectedCount: selectedProblems.length,
+                });
+            }
+
+            selectedProblems.push(problem);
+            selectedProblemIds.push(problem.id);
+        }
+
+        const { slugs, ...safeLeetcodeSync } = leetcodeSync;
+
+        return res.status(200).json({
+            questions: selectedProblems.map((problem) => [problem.id, problem.url_title]),
+            leetcodeSync: safeLeetcodeSync,
+        });
+    } catch (err) {
+        console.error("Error getting contest problems:", err);
+        return res.status(502).json({
+            message: "Unable to sync accepted LeetCode problems before selecting contest questions"
+        });
     }
 }
 
@@ -166,6 +280,7 @@ async function getUserProblemStats(req, res) {
 
 module.exports = {
     getProblem,
+    getContestProblems,
     getQuestionFromProblemId,
     getRatingFromProblemId,
     getUserProblemStats

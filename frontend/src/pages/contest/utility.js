@@ -25,27 +25,17 @@ function getRatings(level) {
     return [r1, r2, r3, r4]; // return numbers, not strings
 }
 
-async function getQuestions(ratings, email) {
-    // let allQuestions = ["a", "b", "c", "d"];
-    let allQuestions = [];
-
-    for (let rating of ratings) {
-        try {
-            const result = await axios.get(`${import.meta.env.VITE_API_URL}/problems/get_problem`, {
-                params: {
-                    rating: rating,
-                    email: email
-                }
-            });
-
-            allQuestions.push([result.data[0]["id"], result.data[0]["url_title"]]);
-
-        } catch (err) {
-            console.log(err);
+async function getQuestions(ratings, email, leetcodeProfileName) {
+    const result = await axios.get(`${import.meta.env.VITE_API_URL}/problems/get_contest_problems`, {
+        params: {
+            ratings: ratings.join(","),
+            email: email,
+            leetcodeProfileName: leetcodeProfileName
         }
-    }
-    console.log(allQuestions);
-    return allQuestions;
+    });
+
+    console.log(result.data.questions);
+    return result.data;
 }
 
 async function registerContest(email, level, questions) {

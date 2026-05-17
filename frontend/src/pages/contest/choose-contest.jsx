@@ -33,6 +33,8 @@ export function ChooseContest({ setIsSubmitted, setSelectedLevel, leetcodeProfil
             If suggested level is too easy/hard, you can choose an appropriate level from
             <a href="/level-sheet"> level sheet</a>. Problem ratings shown here come
             from the external ratings dataset, not LeetCode's Easy/Medium/Hard labels.
+            ThemeCP will sync accepted problems visible from your saved LeetCode profile
+            before selecting contest questions.
           </div>
 
           <div className="theme-box">Theme : mixed</div>

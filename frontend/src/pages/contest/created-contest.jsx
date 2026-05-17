@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./created-contest.css";
 import { getRatings, getQuestions, registerContest } from "./utility";
 import { useAuth } from "../../auth.jsx";
@@ -9,22 +9,35 @@ export function CreatedContest({
     setContestId,
     copyQuestions,
     copyRatings,
+    leetcodeProfileName,
 }) {
     const { user } = useAuth();
 
-    const ratings = getRatings(level);
+    const ratings = useMemo(() => getRatings(level), [level]);
     const [questions, setQuestions] = useState(null);
+    const [leetcodeSync, setLeetcodeSync] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
         async function fetchData() {
             if (!user?.email) return;
 
-            const q = await getQuestions(ratings, user.email);
-            setQuestions(q);
+            setQuestions(null);
+            setLeetcodeSync(null);
+            setErrorMessage("");
+
+            try {
+                const result = await getQuestions(ratings, user.email, leetcodeProfileName);
+                setQuestions(result.questions);
+                setLeetcodeSync(result.leetcodeSync);
+            } catch (err) {
+                console.log(err);
+                setErrorMessage(err.response?.data?.message || "Unable to load contest questions");
+            }
         }
 
         fetchData();
-    }, [user?.email, level]);
+    }, [user?.email, ratings, leetcodeProfileName]);
 
     useEffect(() => {
         copyRatings(ratings);
@@ -32,7 +45,7 @@ export function CreatedContest({
         if (questions) {
             copyQuestions(questions);
         }
-    }, [questions, level]);
+    }, [questions, ratings, copyQuestions, copyRatings]);
 
     return (
         <div className="created-contest-outer">
@@ -84,18 +97,33 @@ export function CreatedContest({
 
                 <div className="contest-duration">Contest Duration : 120 min</div>
 
-                {questions ? (
+                {errorMessage ? (
                     <div className="contest-countdown">
-                        Contest will start once you press the Start button. Be ready...          </div>
+                        {errorMessage}
+                    </div>
+                ) : questions ? (
+                    <div className="contest-countdown">
+                        Contest will start once you press the Start button. Be ready...
+                    </div>
                 ) : (
                     <div className="contest-countdown">
-                        Wait, questions are loading...
+                        Syncing your LeetCode accepted problems and loading questions...
                     </div>
                 )}
 
+                {leetcodeSync ? (
+                    <div className="contest-countdown">
+                        Excluded {leetcodeSync.matchedProblemCount} accepted LeetCode problem
+                        {leetcodeSync.matchedProblemCount === 1 ? "" : "s"} found in ThemeCP ratings.
+                        {leetcodeSync.isPartial
+                            ? " LeetCode's public API only exposes recent accepted submissions, so older solves may not be detected."
+                            : ""}
+                    </div>
+                ) : null}
+
                 <button
                     className="start-btn"
-                    disabled={!questions}
+                    disabled={!questions || questions.length !== 4}
                     onClick={async () => {
                         if (!questions || !user?.email) return;
 

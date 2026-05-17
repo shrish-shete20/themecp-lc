@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { 
   getProblem, 
+  getContestProblems,
   getQuestionFromProblemId, 
   getRatingFromProblemId,
   getUserProblemStats
@@ -11,6 +12,7 @@ const {getUserIdFromEmail} = require("../controllers/contestController")
 const { requireSupabaseAuth } = require("../middleware/supabaseAuth");
 
 router.get("/get_problem", requireSupabaseAuth, getUserIdFromEmail, getProblem);
+router.get("/get_contest_problems", requireSupabaseAuth, getUserIdFromEmail, getContestProblems);
 router.get("/get_question_from_problem_id", getQuestionFromProblemId);
 router.get("/get_rating_from_problem_id", getRatingFromProblemId);
 router.get("/user_stats", requireSupabaseAuth, getUserIdFromEmail, getUserProblemStats);

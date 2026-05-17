@@ -100,6 +100,7 @@ export default function Contest({ leetcodeProfileName }) {
             setContestId={setContestId}
             copyQuestions={getQuestions}
             copyRatings={getRatings}
+            leetcodeProfileName={leetcodeProfileName}
           />
         ) : <Running
           questions={questions}
