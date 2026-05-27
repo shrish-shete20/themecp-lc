@@ -15,8 +15,21 @@ async function connectDB() {
     });
 
     await pool.query("SELECT 1");
+    await ensureAuthSchema(pool);
     console.log("postgres connected");
     return pool;
+}
+
+async function ensureAuthSchema(targetPool) {
+    await targetPool.query(`
+        ALTER TABLE users
+        ADD COLUMN IF NOT EXISTS password_hash TEXT
+    `);
+
+    await targetPool.query(`
+        CREATE INDEX IF NOT EXISTS idx_users_email_lower
+        ON users (LOWER(email))
+    `);
 }
 
 function convertPlaceholders(sql) {

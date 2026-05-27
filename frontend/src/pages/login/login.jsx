@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { supabase, useAuth } from "../../auth.jsx"
+import { useAuth } from "../../auth.jsx"
 import "./login.css"
 
 export default function Login() {
-    const { user, logout, isAuthenticated } = useAuth();
+    const { user, logout, isAuthenticated, signIn, signUp } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [mode, setMode] = useState("sign-in");
@@ -21,30 +21,27 @@ export default function Login() {
 
         setIsSubmitting(true);
 
-        const result = mode === "sign-up"
-            ? await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: {
-                        name: email.split("@")[0],
-                    },
-                },
-            })
-            : await supabase.auth.signInWithPassword({ email, password });
+        try {
+            if (mode === "sign-up") {
+                await signUp({
+                    email,
+                    password,
+                    name: email.split("@")[0],
+                });
+            } else {
+                await signIn({ email, password });
+            }
 
-        setIsSubmitting(false);
-
-        if (result.error) {
-            setMessage(result.error.message);
-            return;
+            setMessage(
+                mode === "sign-up"
+                    ? "Account created. You are signed in."
+                    : "Signed in successfully."
+            );
+        } catch (err) {
+            setMessage(err.message || "Unable to authenticate.");
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setMessage(
-            mode === "sign-up"
-                ? "Account created. Check your email if confirmation is enabled."
-                : "Signed in successfully."
-        );
     };
 
     return (
@@ -58,7 +55,7 @@ export default function Login() {
                 </p>
 
                 <div className="login-highlights">
-                    <span>Supabase Auth</span>
+                    <span>Backend auth</span>
                     <span>ZeroTrac-style ratings</span>
                     <span>No paid services</span>
                 </div>

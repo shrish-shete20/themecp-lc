@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { requireSupabaseAuth } = require("../middleware/supabaseAuth");
+const { requireAuth } = require("../middleware/auth");
 
 const {
     getUserIdFromEmail,
@@ -12,10 +12,10 @@ const {
     getContestHistory
 } = require("../controllers/contestController");
 
-router.post("/add_contest", requireSupabaseAuth, getUserIdFromEmail, addContest);
-router.get("/is_contest_running", requireSupabaseAuth, getUserIdFromEmail, isContestRunning);
-router.post("/update_submission", requireSupabaseAuth, getUserIdFromEmail, getProblemIds, insertSolvedProblems);
-router.get("/get_contest", requireSupabaseAuth, getUserIdFromEmail, getContest);
-router.get("/contest_history", requireSupabaseAuth, getUserIdFromEmail, getContestHistory);
+router.post("/add_contest", requireAuth, getUserIdFromEmail, addContest);
+router.get("/is_contest_running", requireAuth, getUserIdFromEmail, isContestRunning);
+router.post("/update_submission", requireAuth, getUserIdFromEmail, getProblemIds, insertSolvedProblems);
+router.get("/get_contest", requireAuth, getUserIdFromEmail, getContest);
+router.get("/contest_history", requireAuth, getUserIdFromEmail, getContestHistory);
 
 module.exports = router;

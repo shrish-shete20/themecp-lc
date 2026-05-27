@@ -2,10 +2,13 @@ CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash TEXT,
   leetcode_profile_name VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email));
 
 CREATE TABLE IF NOT EXISTS theme_profile (
   id SERIAL PRIMARY KEY,

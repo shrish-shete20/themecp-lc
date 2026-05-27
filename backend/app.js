@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 
+const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const problemRoutes = require("./routes/problemRoutes");
 const leetcodeRoutes = require("./routes/leetcodeRoutes");
@@ -31,6 +32,7 @@ app.get("/", (req, res) => {
   res.send("Backend is working 🚀");
 });
 
+app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/problems", problemRoutes);
 app.use("/leetcode", leetcodeRoutes);

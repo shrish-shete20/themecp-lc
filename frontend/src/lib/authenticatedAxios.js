@@ -1,5 +1,5 @@
 import axios from "axios";
-import { supabase } from "../auth.jsx";
+import { clearAuthSession, getAuthToken } from "../auth.jsx";
 
 function targetsBackend(config) {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -11,33 +11,13 @@ function targetsBackend(config) {
   );
 }
 
-async function getAccessToken() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session) return null;
-
-  const expiresAt = session.expires_at || 0;
-  const refreshBefore = Math.floor(Date.now() / 1000) + 60;
-
-  if (expiresAt > refreshBefore) {
-    return session.access_token;
-  }
-
-  const {
-    data: { session: refreshedSession },
-  } = await supabase.auth.refreshSession();
-
-  return refreshedSession?.access_token || session.access_token;
-}
-
 axios.interceptors.request.use(async (config) => {
   if (!targetsBackend(config)) return config;
 
-  const accessToken = await getAccessToken();
+  const accessToken = getAuthToken();
 
   if (accessToken) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
@@ -60,13 +40,13 @@ axios.interceptors.response.use(
 
     originalRequest._retry = true;
 
-    const accessToken = await getAccessToken();
+    const accessToken = getAuthToken();
 
     if (!accessToken) {
       return Promise.reject(error);
     }
 
-    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-    return axios(originalRequest);
+    clearAuthSession();
+    return Promise.reject(error);
   }
 );
