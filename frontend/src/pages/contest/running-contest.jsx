@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getSubmissionStatus, updateSubmission } from "./utility";
+import { getSubmissionStatus, replaceContestQuestion, updateSubmission } from "./utility";
 import { useAuth } from "../../auth.jsx"
 
 import "./running-contest.css"
@@ -46,8 +46,48 @@ export function Running({
   console.log(questions)
   console.log(contestId);
   const [submissionStatus, setSubmissionStatus] = useState([false, false, false, false]);
+  const [localQuestions, setLocalQuestions] = useState(questions);
+  const [rerollingIndex, setRerollingIndex] = useState(null);
+  const [rerollMessage, setRerollMessage] = useState("");
   const { user } = useAuth();
   console.log(questions)
+
+  async function handleReplaceQuestion(index) {
+    if (!localQuestions || !user?.email || rerollingIndex !== null) return;
+
+    setRerollingIndex(index);
+    setRerollMessage("");
+
+    try {
+      const result = await replaceContestQuestion({
+        email: user.email,
+        rating: ratings[index],
+        questions: localQuestions,
+        currentProblemId: localQuestions[index][0],
+        leetcodeProfileName,
+        contestId,
+        problemIndex: index + 1,
+      });
+
+      setLocalQuestions((currentQuestions) => {
+        if (!currentQuestions) return currentQuestions;
+        const nextQuestions = [...currentQuestions];
+        nextQuestions[index] = result.question;
+        return nextQuestions;
+      });
+      setSubmissionStatus((currentStatus) => {
+        const nextStatus = [...currentStatus];
+        nextStatus[index] = false;
+        return nextStatus;
+      });
+      setRerollMessage(`Problem ${String.fromCharCode(65 + index)} replaced and saved as solved locally.`);
+    } catch (err) {
+      console.log(err);
+      setRerollMessage(err.response?.data?.message || "Unable to replace this question");
+    } finally {
+      setRerollingIndex(null);
+    }
+  }
 
   return (
     <div className="running-contest-outer">
@@ -85,44 +125,37 @@ export function Running({
                 <th>Name</th>
                 <th>Rating</th>
                 <th>Status</th>
+                <th>Action</th>
               </tr>
 
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td> <a href={`https://leetcode.com/problems/${questions[0][1]} `}
-                  target="_blank"
-                  rel="noopener noreferrer">Problem A</a> </td>
-                <td>{ratings[0]}</td>
-                <td>{submissionStatus[0] ? "Accepted" : "not yet done"}</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td> <a href={`https://leetcode.com/problems/${questions[1][1]} `}
-                  target="_blank"
-                  rel="noopener noreferrer">Problem B</a> </td>
-                <td>{ratings[1]}</td>
-                <td>{submissionStatus[1] ? "Accepted" : "not yet done"}</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td> <a href={`https://leetcode.com/problems/${questions[2][1]} `}
-                  target="_blank"
-                  rel="noopener noreferrer">Problem C</a> </td>
-                <td>{ratings[2]}</td>
-                <td>{submissionStatus[2] ? "Accepted" : "not yet done"}</td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td> <a href={`https://leetcode.com/problems/${questions[3][1]} `}
-                  target="_blank"
-                  rel="noopener noreferrer">Problem D</a> </td>
-                <td>{ratings[3]}</td>
-                <td>{submissionStatus[3] ? "Accepted" : "not yet done"}</td>
-              </tr>
+              {localQuestions.map((question, index) => (
+                <tr key={question[0]}>
+                  <td>{index + 1}</td>
+                  <td> <a href={`https://leetcode.com/problems/${question[1]} `}
+                    target="_blank"
+                    rel="noopener noreferrer">Problem {String.fromCharCode(65 + index)}</a> </td>
+                  <td>{ratings[index]}</td>
+                  <td>{submissionStatus[index] ? "Accepted" : "not yet done"}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="replace-running-question-btn"
+                      disabled={submissionStatus[index] || rerollingIndex !== null}
+                      onClick={() => handleReplaceQuestion(index)}
+                    >
+                      {rerollingIndex === index ? "Replacing..." : "Already solved? Replace"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
+
+          {rerollMessage ? (
+            <p className="running-contest-message">{rerollMessage}</p>
+          ) : null}
 
         </div>
 

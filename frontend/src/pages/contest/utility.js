@@ -38,6 +38,28 @@ async function getQuestions(ratings, email, leetcodeProfileName) {
     return result.data;
 }
 
+async function replaceContestQuestion({
+    email,
+    rating,
+    questions,
+    currentProblemId,
+    leetcodeProfileName,
+    contestId,
+    problemIndex,
+}) {
+    const result = await axios.post(`${import.meta.env.VITE_API_URL}/problems/replace_contest_problem`, {
+        email,
+        rating,
+        currentProblemId,
+        excludedProblemIds: questions.map((question) => question[0]),
+        leetcodeProfileName,
+        ...(contestId ? { contestId } : {}),
+        ...(problemIndex ? { problemIndex } : {}),
+    });
+
+    return result.data;
+}
+
 async function registerContest(email, level, questions) {
 
     const data = {
@@ -191,6 +213,7 @@ export {
     isContestRunning,
     registerContest,
     getQuestions,
+    replaceContestQuestion,
     getRatings,
     getSubmissionStatus,
     updateSubmission,

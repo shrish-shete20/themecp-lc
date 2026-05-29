@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import "./created-contest.css";
-import { getRatings, getQuestions, registerContest } from "./utility";
+import { getRatings, getQuestions, registerContest, replaceContestQuestion } from "./utility";
 import { useAuth } from "../../auth.jsx";
 
 export function CreatedContest({
@@ -17,6 +17,8 @@ export function CreatedContest({
     const [questions, setQuestions] = useState(null);
     const [leetcodeSync, setLeetcodeSync] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
+    const [rerollingIndex, setRerollingIndex] = useState(null);
+    const [rerollMessage, setRerollMessage] = useState("");
 
     useEffect(() => {
         async function fetchData() {
@@ -46,6 +48,37 @@ export function CreatedContest({
             copyQuestions(questions);
         }
     }, [questions, ratings, copyQuestions, copyRatings]);
+
+    async function handleReplaceQuestion(index) {
+        if (!questions || !user?.email || rerollingIndex !== null) return;
+
+        setRerollingIndex(index);
+        setRerollMessage("");
+
+        try {
+            const result = await replaceContestQuestion({
+                email: user.email,
+                rating: ratings[index],
+                questions,
+                currentProblemId: questions[index][0],
+                leetcodeProfileName,
+            });
+
+            setQuestions((currentQuestions) => {
+                if (!currentQuestions) return currentQuestions;
+                const nextQuestions = [...currentQuestions];
+                nextQuestions[index] = result.question;
+                return nextQuestions;
+            });
+            if (result.leetcodeSync) setLeetcodeSync(result.leetcodeSync);
+            setRerollMessage(`Q${index + 1} replaced and saved as solved locally.`);
+        } catch (err) {
+            console.log(err);
+            setRerollMessage(err.response?.data?.message || "Unable to replace this question");
+        } finally {
+            setRerollingIndex(null);
+        }
+    }
 
     return (
         <div className="created-contest-outer">
@@ -79,13 +112,23 @@ export function CreatedContest({
                             {[1, 2, 3, 4].map((i) => (
                                 <div key={i} className={`cell b${i} link`}>
                                     {questions ? (
-                                        <a
-                                            href={`https://leetcode.com/problems/${questions[i - 1][1]}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            Q{i}
-                                        </a>
+                                        <div className="question-cell-content">
+                                            <a
+                                                href={`https://leetcode.com/problems/${questions[i - 1][1]}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Q{i}
+                                            </a>
+                                            <button
+                                                type="button"
+                                                className="replace-question-btn"
+                                                disabled={rerollingIndex !== null}
+                                                onClick={() => handleReplaceQuestion(i - 1)}
+                                            >
+                                                {rerollingIndex === i - 1 ? "Replacing..." : "Already solved? Replace"}
+                                            </button>
+                                        </div>
                                     ) : (
                                         <span>Loading...</span>
                                     )}
@@ -121,9 +164,15 @@ export function CreatedContest({
                     </div>
                 ) : null}
 
+                {rerollMessage ? (
+                    <div className="contest-countdown">
+                        {rerollMessage}
+                    </div>
+                ) : null}
+
                 <button
                     className="start-btn"
-                    disabled={!questions || questions.length !== 4}
+                    disabled={!questions || questions.length !== 4 || rerollingIndex !== null}
                     onClick={async () => {
                         if (!questions || !user?.email) return;
 

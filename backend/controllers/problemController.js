@@ -24,6 +24,45 @@ async function getSavedLeetcodeProfileName(db, userId) {
     return rows[0]?.leetcode_profile_name || null;
 }
 
+function normalizeProblemIds(problemIds = []) {
+    const ids = Array.isArray(problemIds) ? problemIds : [problemIds];
+
+    return [...new Set(
+        ids
+            .map((problemId) => Number(problemId))
+            .filter((problemId) => Number.isInteger(problemId) && problemId > 0)
+    )];
+}
+
+function stripLeetcodeSlugs(leetcodeSync) {
+    const { slugs, ...safeLeetcodeSync } = leetcodeSync;
+    return safeLeetcodeSync;
+}
+
+async function markProblemSolved(db, userId, problemId) {
+    if (!Number.isInteger(problemId) || problemId <= 0) {
+        return false;
+    }
+
+    await db.query(
+        `
+            INSERT INTO user_problems (
+                user_id,
+                problem_id,
+                status
+            )
+            VALUES (?, ?, ?)
+            ON CONFLICT (user_id, problem_id)
+            DO UPDATE SET
+                status = EXCLUDED.status,
+                updated_at = CURRENT_TIMESTAMP
+        `,
+        [userId, problemId, "solved"]
+    );
+
+    return true;
+}
+
 async function selectProblemForRating(db, userId, rating, excludedProblemIds = []) {
     const excludedProblemClause = excludedProblemIds.length > 0
         ? "AND p.id <> ALL(?::int[])"
@@ -52,6 +91,119 @@ async function selectProblemForRating(db, userId, rating, excludedProblemIds = [
 
     const [rows] = await db.query(sql, params);
     return rows[0] || null;
+}
+
+async function replaceContestProblem(req, res) {
+    const db = getDB();
+    const userId = req.userId;
+    const rating = Number(req.body.rating);
+    const currentProblemId = Number(req.body.currentProblemId);
+    const excludedProblemIds = normalizeProblemIds([
+        ...(Array.isArray(req.body.excludedProblemIds) ? req.body.excludedProblemIds : []),
+        currentProblemId,
+    ]);
+
+    if (!Number.isFinite(rating)) {
+        return res.status(400).json({
+            message: "A numeric rating is required"
+        });
+    }
+
+    try {
+        const requestedProfileName = req.body.leetcodeProfileName || req.body.leetcodeUsername;
+        const leetcodeProfileName = requestedProfileName || await getSavedLeetcodeProfileName(db, userId);
+
+        if (!leetcodeProfileName) {
+            return res.status(400).json({
+                message: "LeetCode profile name is required before replacing a contest question"
+            });
+        }
+
+        const leetcodeSync = await syncAcceptedLeetcodeProblems(db, userId, leetcodeProfileName);
+
+        if (leetcodeSync.profileFound === false) {
+            return res.status(400).json({
+                message: "Saved LeetCode profile was not found"
+            });
+        }
+
+        const markedCurrentSolved = req.body.markCurrentSolved === false
+            ? false
+            : await markProblemSolved(db, userId, currentProblemId);
+
+        const replacement = await selectProblemForRating(db, userId, rating, excludedProblemIds);
+
+        if (!replacement) {
+            return res.status(409).json({
+                message: `No replacement unsolved problem found for rating ${rating}`
+            });
+        }
+
+        const contestId = Number(req.body.contestId);
+        const problemIndex = Number(req.body.problemIndex);
+
+        if (req.body.contestId != null || req.body.problemIndex != null) {
+            const slots = {
+                1: { problemColumn: "problem_id1", statusColumn: "problem1_status" },
+                2: { problemColumn: "problem_id2", statusColumn: "problem2_status" },
+                3: { problemColumn: "problem_id3", statusColumn: "problem3_status" },
+                4: { problemColumn: "problem_id4", statusColumn: "problem4_status" },
+            };
+            const slot = slots[problemIndex];
+
+            if (!Number.isInteger(contestId) || contestId <= 0 || !slot) {
+                return res.status(400).json({
+                    message: "contestId and problemIndex 1-4 are required to update a running contest"
+                });
+            }
+
+            const [contestRows] = await db.query(
+                `
+                    SELECT problem_id1, problem_id2, problem_id3, problem_id4
+                    FROM contests
+                    WHERE id = ? AND user_id = ?
+                `,
+                [contestId, userId]
+            );
+
+            if (contestRows.length === 0) {
+                return res.status(404).json({
+                    message: "Contest not found"
+                });
+            }
+
+            if (
+                Number.isInteger(currentProblemId)
+                && Number(contestRows[0][slot.problemColumn]) !== currentProblemId
+            ) {
+                return res.status(409).json({
+                    message: "Contest problem changed before replacement could be applied"
+                });
+            }
+
+            await db.query(
+                `
+                    UPDATE contests
+                    SET ${slot.problemColumn} = ?,
+                        ${slot.statusColumn} = 'unsolved',
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ? AND user_id = ?
+                `,
+                [replacement.id, contestId, userId]
+            );
+        }
+
+        return res.status(200).json({
+            question: [replacement.id, replacement.url_title],
+            markedCurrentSolved,
+            leetcodeSync: stripLeetcodeSlugs(leetcodeSync),
+        });
+    } catch (err) {
+        console.error("Error replacing contest problem:", err);
+        return res.status(502).json({
+            message: "Unable to replace contest question"
+        });
+    }
 }
 
 async function getProblem(req, res) {
@@ -130,11 +282,9 @@ async function getContestProblems(req, res) {
             selectedProblemIds.push(problem.id);
         }
 
-        const { slugs, ...safeLeetcodeSync } = leetcodeSync;
-
         return res.status(200).json({
             questions: selectedProblems.map((problem) => [problem.id, problem.url_title]),
-            leetcodeSync: safeLeetcodeSync,
+            leetcodeSync: stripLeetcodeSlugs(leetcodeSync),
         });
     } catch (err) {
         console.error("Error getting contest problems:", err);
@@ -281,6 +431,7 @@ async function getUserProblemStats(req, res) {
 module.exports = {
     getProblem,
     getContestProblems,
+    replaceContestProblem,
     getQuestionFromProblemId,
     getRatingFromProblemId,
     getUserProblemStats

@@ -26,3 +26,29 @@ table {
   padding: 10px;
   text-align: center;
 }
+
+.replace-running-question-btn {
+  padding: 7px 9px;
+  border: 1px solid #d8d8d8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #444;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.replace-running-question-btn:hover {
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.replace-running-question-btn:disabled {
+  color: #999999;
+  cursor: not-allowed;
+}
+
+.running-contest-message {
+  margin-top: 14px;
+  text-align: center;
+  color: #555555;
+}

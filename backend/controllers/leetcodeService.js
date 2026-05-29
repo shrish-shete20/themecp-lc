@@ -1,5 +1,5 @@
 const LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql";
-const RECENT_ACCEPTED_LIMIT = 100;
+const RECENT_ACCEPTED_LIMIT = 500;
 
 async function postLeetcodeGraphql(query, variables) {
   const response = await fetch(LEETCODE_GRAPHQL_URL, {
